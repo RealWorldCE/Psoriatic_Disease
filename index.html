@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Real World CE</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet"/>
+
+<style>
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .fade-in { animation: fadeIn 0.25s ease-in-out; }
+  @keyframes fadeIn { from {opacity:0; transform:translateY(8px);} to {opacity:1; transform:translateY(0);} }
+
+  .typing-indicator span { animation: blink 1.4s infinite both; }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%{opacity:.2;} 20%{opacity:1;} 100%{opacity:.2;} }
+
+/* --- Clinical overlay enhancements (layout-safe) --- */
+.view-active { background: rgba(255,255,255,0.12); color: #fff !important; }
+.clinical-zoom {
+  transform: scale(1);
+  transition: transform 650ms cubic-bezier(.22,.61,.36,1);
+}
+#clinical-overlay.zoomed .clinical-zoom {
+  transform: scale(1.08);
+}
+
+.hotspot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.95);
+  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.18);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+.hotspot:hover { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.20); }
+
+.tooltip {
+  position: absolute;
+  min-width: 170px;
+  max-width: 240px;
+  background: rgba(15, 23, 42, 0.92);
+  color: white;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 11px;
+  line-height: 1.25;
+  transform: translate(-50%, -120%);
+  opacity: 0;
+  transition: opacity 140ms ease;
+  pointer-events: none;
+  z-index: 30;
+}
+.hotspot:hover + .tooltip { opacity: 1; }
+
+
+/* --- Real World CE premium header/logo treatment --- */
+.rwce-logo{
+  height:46px; width:auto; object-fit:contain;
+  opacity:.96;
+  transform:translateZ(0) scale(1);
+  transition:transform 180ms ease, opacity 180ms ease, filter 180ms ease;
+  filter: drop-shadow(0 6px 10px rgba(15, 23, 42, 0.10));
+}
+.rwce-logo:hover{
+  opacity:1;
+  transform:translateZ(0) scale(1.03);
+  filter: drop-shadow(0 10px 18px rgba(15, 23, 42, 0.14));
+}
+.rwce-logo:active{ transform:translateZ(0) scale(1.01); }
+.brand-left{ gap:16px; }
+
+  .bg-medical-blue { background-color: #002147; }
+  .glass-cmv { background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226,232,240,1); }
+
+  /* --- Premium UI polish (layout-safe) --- */
+  :root{
+    --rw-blue: #2563eb;         /* blue-600 */
+    --rw-blue-700: #1d4ed8;     /* blue-700 */
+    --rw-ink: #0f172a;          /* slate-900 */
+  }
+  body{
+    background:
+      radial-gradient(1200px 600px at 12% 0%, rgba(37, 99, 235, 0.10), rgba(37, 99, 235, 0.00) 55%),
+      radial-gradient(900px 450px at 88% 18%, rgba(99, 102, 241, 0.10), rgba(99, 102, 241, 0.00) 52%),
+      linear-gradient(180deg, rgba(248,250,252,1) 0%, rgba(241,245,249,1) 100%);
+  }
+  .glass-cmv{
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(226,232,240,1);
+  }
+  #sidebar{
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(226,232,240,1);
+  }
+  .rw-card-soft{
+    border-radius: 16px;
+    border: 1px solid rgba(226,232,240,1);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+  }
+  .rw-btn-primary{
+    background: var(--rw-blue);
+    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.20);
+  }
+  .rw-btn-primary:hover{ background: var(--rw-blue-700); }
+  .session-item{
+    border: 1px solid rgba(226,232,240,1);
+    background: rgba(255,255,255,0.7);
+  }
+  .session-item:hover{
+    background: rgba(37, 99, 235, 0.06);
+    border-color: rgba(37, 99, 235, 0.35);
+  }
+  .session-item.active{
+    background: rgba(37, 99, 235, 0.10);
+    border-color: rgba(37, 99, 235, 0.45);
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.10);
+  }
+  .bubble-bot{
+    border: 1px solid rgba(226,232,240,1);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+  }
+  .bubble-user{
+    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
+  }
+  @media (min-width: 768px){
+    .scrollbar-hide::-webkit-scrollbar{ display:block; width:10px; }
+    .scrollbar-hide::-webkit-scrollbar-thumb{
+      background: rgba(148,163,184,0.35);
+      border-radius: 999px;
+      border: 3px solid rgba(248,250,252,1);
+    }
+    .scrollbar-hide::-webkit-scrollbar-track{ background: transparent; }
+  }
+
+  .module-tab {
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.7rem 1rem; border-radius:999px;
+    color:#64748b; border:1px solid transparent;
+    transition:all .18s ease; cursor:pointer;
+  }
+  .module-tab:hover{ color:#1d4ed8; background:rgba(37,99,235,.06); border-color:rgba(37,99,235,.14); }
+  .module-tab.active{
+    color:#1d4ed8; background:rgba(37,99,235,.10);
+    border-color:rgba(37,99,235,.22); box-shadow:0 8px 18px rgba(37,99,235,.10);
+  }
+  .module-shell{ max-width:56rem; margin:0 auto; }
+  .module-card{ background:rgba(255,255,255,.94); border:1px solid rgba(226,232,240,1); border-radius:20px; box-shadow:0 10px 24px rgba(15,23,42,.05); }
+  .pill-kicker{ display:inline-flex; align-items:center; gap:.5rem; padding:.45rem .8rem; border-radius:999px; background:rgba(37,99,235,.08); color:#1d4ed8; font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+  .resource-link{ display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1rem 1.1rem; border-radius:16px; border:1px solid rgba(226,232,240,1); background:#fff; transition:all .18s ease; }
+  .resource-link:hover{ border-color:rgba(37,99,235,.30); background:rgba(239,246,255,1); }
+  .quiz-choice.correct{ border-color:rgba(22,163,74,.35) !important; background:rgba(240,253,244,1) !important; }
+  .quiz-choice.incorrect{ border-color:rgba(220,38,38,.28) !important; background:rgba(254,242,242,1) !important; }
+  .quiz-choice.selected{ border-color:rgba(37,99,235,.35) !important; background:rgba(239,246,255,1) !important; }
+
+
+  *{ box-sizing:border-box; }
+  body{ font-family:'Inter',sans-serif; position:relative; isolation:isolate; }
+  .elite-orb{
+    position:fixed; inset:auto;
+    border-radius:9999px; filter:blur(80px); pointer-events:none; z-index:-1; opacity:.55;
+  }
+  .elite-orb.one{ width:22rem; height:22rem; top:-5rem; left:-4rem; background:rgba(37,99,235,.18); }
+  .elite-orb.two{ width:28rem; height:28rem; top:18%; right:-8rem; background:rgba(14,165,233,.16); }
+  .elite-orb.three{ width:20rem; height:20rem; bottom:-5rem; left:28%; background:rgba(99,102,241,.14); }
+  .elite-grid{
+    position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.22;
+    background-image:
+      linear-gradient(rgba(148,163,184,.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148,163,184,.12) 1px, transparent 1px);
+    background-size: 36px 36px;
+    mask-image: radial-gradient(circle at center, black 45%, transparent 85%);
+  }
+  .glass-cmv, #sidebar, .module-card, .resource-link, .rw-card-soft, .bubble-bot{
+    box-shadow:
+      0 10px 30px rgba(15,23,42,.05),
+      0 1px 0 rgba(255,255,255,.7) inset;
+  }
+  .elite-panel{
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.88), rgba(255,255,255,.72)),
+      radial-gradient(circle at top right, rgba(59,130,246,.08), transparent 40%);
+    backdrop-filter: blur(18px);
+  }
+  .elite-chip{
+    display:inline-flex; align-items:center; gap:.45rem;
+    padding:.45rem .75rem; border-radius:999px;
+    border:1px solid rgba(191,219,254,.9);
+    background:rgba(239,246,255,.75); color:#1d4ed8;
+    font-size:.68rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+  }
+  .header-accent{
+    background:linear-gradient(90deg,#2563eb,#38bdf8);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero-stat{
+    border:1px solid rgba(226,232,240,1); border-radius:1rem;
+    background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.9));
+    box-shadow:0 10px 24px rgba(15,23,42,.05);
+  }
+  .session-item-elite{
+    position:relative; overflow:hidden;
+  }
+  .session-item-elite::before{
+    content:''; position:absolute; inset:0 auto 0 0; width:3px;
+    background:linear-gradient(180deg,#2563eb,#38bdf8); opacity:0; transition:opacity .18s ease;
+  }
+  .session-item-elite:hover::before, .session-item-elite.active::before{ opacity:1; }
+  .left-hero{
+    background:
+      linear-gradient(180deg, rgba(2,6,23,.02), rgba(2,6,23,.00)),
+      radial-gradient(circle at top right, rgba(56,189,248,.20), transparent 42%);
+  }
+  .consult-shell{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.82), rgba(248,250,252,.96));
+  }
+  .avatar-frame::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 55%, rgba(15,23,42,.16) 100%);
+    pointer-events:none;
+  }
+  .avatar-glow{
+    position:absolute; inset:auto 1rem 1rem auto;
+    width:5rem; height:5rem; border-radius:999px;
+    background:radial-gradient(circle, rgba(59,130,246,.34), rgba(59,130,246,0));
+    filter:blur(20px); pointer-events:none;
+  }
+  .completion-shell{
+    background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.98));
+  }
+
+
+/* --- Elite Diagnostic View Mode --- */
+.clinical-panel-shell{
+  width:min(100%, 78rem);
+  display:flex;
+  flex-direction:column;
+  gap:1.25rem;
+  align-items:center;
+}
+.clinical-stage{
+  position:relative;
+  width:100%;
+  height:clamp(24rem, 62vh, 46rem);
+  border-radius:1.75rem;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at top right, rgba(56,189,248,.22), transparent 28%),
+    radial-gradient(circle at left center, rgba(59,130,246,.16), transparent 34%),
+    #020617;
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:
+    0 30px 70px rgba(2,6,23,.55),
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 0 0 1px rgba(56,189,248,.08);
+}
+.clinical-stage::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(2,6,23,.10) 0%, rgba(2,6,23,.00) 24%, rgba(2,6,23,.08) 72%, rgba(2,6,23,.58) 100%);
+}
+.clinical-hud{
+  position:absolute;
+  top:1rem;
+  left:1rem;
+  right:1rem;
+  z-index:25;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+}
+.clinical-stat{
+  display:inline-flex;
+  align-items:center;
+  gap:.6rem;
+  padding:.7rem .95rem;
+  border-radius:999px;
+  background:rgba(2,6,23,.50);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 14px 34px rgba(2,6,23,.32);
+}
+.clinical-footer{
+  position:absolute;
+  left:1rem;
+  right:1rem;
+  bottom:1rem;
+  z-index:25;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:1rem;
+}
+.clinical-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:.55rem;
+  padding:.85rem 1rem;
+  border-radius:999px;
+  color:#fff;
+  background:linear-gradient(135deg, rgba(225,29,72,.96), rgba(249,115,22,.90));
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 14px 30px rgba(225,29,72,.28);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+.clinical-callout{
+  max-width:min(32rem, 62%);
+  text-align:left;
+  padding:1rem 1.1rem;
+  border-radius:1.1rem;
+  background:rgba(255,255,255,.10);
+  backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 16px 38px rgba(2,6,23,.34);
+}
+.clinical-callout .label{
+  font-size:.63rem;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:#7dd3fc;
+  margin-bottom:.38rem;
+}
+.clinical-callout .value{
+  color:#e2e8f0;
+  font-size:.92rem;
+  line-height:1.45;
+  font-weight:600;
+}
+#clinical-overlay.zoomed .clinical-zoom {
+  transform: scale(1.12);
+}
+.clinical-zoom {
+  transform: scale(1.01);
+  transition: transform 900ms cubic-bezier(.22,.61,.36,1), opacity 280ms ease, filter 280ms ease;
+  filter: saturate(1.03) contrast(1.03);
+}
+.hotspot {
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.95), rgba(125,211,252,.9) 35%, rgba(59,130,246,.98) 72%, rgba(37,99,235,1) 100%);
+  box-shadow: 0 0 0 8px rgba(56,189,248,.16), 0 0 24px rgba(56,189,248,.55);
+}
+.hotspot::after {
+  content:'';
+  position:absolute;
+  inset:-10px;
+  border-radius:999px;
+  border:1px solid rgba(125,211,252,.65);
+  animation: hotspotPulse 2.1s ease-out infinite;
+}
+.hotspot:hover { box-shadow: 0 0 0 10px rgba(56,189,248,.22), 0 0 30px rgba(56,189,248,.75); }
+.tooltip {
+  min-width: 210px;
+  max-width: 280px;
+  background: rgba(2,6,23,.92);
+  color: white;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(125,211,252,.28);
+  box-shadow: 0 18px 38px rgba(2,6,23,.45);
+  font-size: 12px;
+  line-height: 1.35;
+  transform: translate(-50%, -130%);
+}
+@keyframes hotspotPulse {
+  0% { transform: scale(.85); opacity:.9; }
+  70% { transform: scale(1.4); opacity:0; }
+  100% { transform: scale(1.4); opacity:0; }
+}
+@media (max-width: 768px){
+  .clinical-stage{ height: clamp(21rem, 56vh, 32rem); border-radius:1.25rem; }
+  .clinical-hud,
+  .clinical-footer{ left:.75rem; right:.75rem; }
+  .clinical-footer{ flex-direction:column; align-items:stretch; }
+  .clinical-callout{ max-width:100%; }
+  .clinical-badge{ align-self:flex-start; }
+}
+
+
+  .standardized-header{
+    box-shadow:
+      0 18px 40px rgba(2,6,23,0.24),
+      0 1px 0 rgba(255,255,255,0.08) inset;
+  }
+  .standardized-title{
+    text-shadow:
+      0 2px 18px rgba(34,211,238,0.10),
+      0 10px 30px rgba(2,6,23,0.28);
+  }
+  .standardized-icon{
+    position: relative;
+  }
+  .standardized-icon::after{
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255,255,255,0.20), rgba(255,255,255,0.02));
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    padding: 1px;
+    pointer-events: none;
+  }
+
+
+
+  /* --- Mobile optimization for phone viewing --- */
+  html { height: 100%; }
+  body { min-height: 100svh; }
+  img { max-width: 100%; }
+
+  @media (max-width: 767px){
+    body{
+      height:auto;
+      min-height:100dvh;
+      overflow-y:auto;
+      -webkit-text-size-adjust:100%;
+    }
+    header{
+      padding-top: max(0.9rem, env(safe-area-inset-top));
+    }
+    #sidebar{
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      width: min(88vw, 22rem);
+      height: 100dvh;
+      border-radius: 0 1.5rem 1.5rem 0;
+      z-index: 60;
+    }
+    main{
+      flex-direction: column !important;
+      overflow: visible !important;
+      gap: 1rem !important;
+      margin-left: 0 !important;
+      min-height: auto !important;
+    }
+    main > section{
+      width: 100% !important;
+      min-width: 0 !important;
+      max-height: none !important;
+      overflow: visible !important;
+      border-radius: 1.25rem !important;
+    }
+    .avatar-frame{
+      aspect-ratio: 4 / 3;
+    }
+    #clinical-overlay{
+      justify-content: flex-start !important;
+      padding: 1rem !important;
+      text-align: left !important;
+      overflow-y: auto;
+    }
+    #clinical-overlay > div:first-child{
+      height: min(48dvh, 21rem) !important;
+      margin-bottom: 0.875rem !important;
+      border-radius: 1rem !important;
+    }
+    #clinical-title{
+      font-size: 1.125rem !important;
+      line-height: 1.3 !important;
+    }
+    #clinical-desc{
+      font-size: 0.875rem !important;
+      line-height: 1.5 !important;
+    }
+    #btn-return{
+      width: 100%;
+      justify-content: center;
+      margin-top: 1rem !important;
+    }
+    #chat-container{
+      overflow: visible !important;
+      padding: 1rem !important;
+    }
+    #interaction-area{
+      position: sticky;
+      bottom: 0;
+      padding-bottom: calc(0.25rem + env(safe-area-inset-bottom));
+    }
+    #module-tabs{
+      overflow-x: auto;
+      overflow-y: hidden;
+      flex-wrap: nowrap !important;
+      padding-bottom: 0.25rem;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    #module-tabs::-webkit-scrollbar{
+      display:none;
+    }
+    .module-tab{
+      flex: 0 0 auto;
+      white-space: nowrap;
+      padding: 0.7rem 0.9rem;
+    }
+    .module-shell{
+      max-width: 100%;
+    }
+    .module-card{
+      border-radius: 1.25rem;
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+    .hero-stat{
+      display: none !important;
+    }
+    .left-hero{
+      padding: 1rem !important;
+    }
+    .resource-link{
+      padding: 0.9rem !important;
+      align-items: flex-start;
+    }
+    .resource-link .material-symbols-outlined{
+      font-size: 1.3rem;
+    }
+    .session-item-elite span:last-child{
+      line-height: 1.35;
+    }
+  }
+
+</style>
+</head>
+
+<body class="bg-slate-50 min-h-screen flex flex-col overflow-x-hidden font-sans text-slate-800">
+<div class="elite-orb one"></div>
+<div class="elite-orb two"></div>
+<div class="elite-orb three"></div>
+<div class="elite-grid"></div>
+
+<!-- Real World CE | -->
+<header class="sticky top-0 z-50 px-4 md:px-8 py-4 md:py-5 relative overflow-hidden border-b border-white/10 standardized-header">
+  <div class="absolute inset-0 bg-[linear-gradient(90deg,#020617_0%,#082f49_18%,#0f3f73_38%,#0c4a6e_58%,#0369a1_82%,#38bdf8_100%)] opacity-[0.98]"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(56,189,248,0.22),transparent_28%),radial-gradient(circle_at_80%_18%,rgba(96,165,250,0.20),transparent_26%),radial-gradient(circle_at_50%_120%,rgba(14,165,233,0.16),transparent_40%)]"></div>
+  <div class="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,.22)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.22)_1px,transparent_1px)] [background-size:32px_32px]"></div>
+  <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent"></div>
+  <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-300/60 to-transparent"></div>
+
+  <div class="relative max-w-[1600px] mx-auto flex items-center justify-between gap-4">
+    <div class="min-w-0 flex items-center">
+      <div class="leading-none min-w-0">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="inline-flex items-center px-3 py-1 rounded-full border border-cyan-300/20 bg-white/8 backdrop-blur-md text-[10px] font-black tracking-[0.34em] uppercase text-cyan-300 shadow-[0_8px_24px_rgba(34,211,238,0.12)]">
+            Real World CE
+          </span>
+
+          <span class="hidden md:block h-px w-12 bg-gradient-to-r from-cyan-300/60 to-transparent"></span>
+
+          <span class="hidden md:block text-[10px] font-black tracking-[0.28em] uppercase text-white/45">
+            
+          </span>
+        </div>
+
+        <div class="font-black text-[1.35rem] md:text-[1.8rem] uppercase text-white tracking-[-0.03em] standardized-title">
+          <span class="bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(224,242,254,0.98)_45%,rgba(186,230,253,0.92)_100%)] bg-clip-text text-transparent drop-shadow-[0_2px_16px_rgba(56,189,248,0.18)]">
+            Real World CE
+          </span>
+        </div>
+
+        <div class="mt-2 text-[11px] md:text-[12px] font-semibold tracking-[0.16em] uppercase text-white/70">
+          Bringing the Real World Into Clinical Education
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 md:gap-5 shrink-0">
+      <div class="hidden lg:flex items-center gap-3 px-4 py-3 rounded-[1.15rem] border border-white/12 bg-white/10 backdrop-blur-xl shadow-[0_14px_34px_rgba(2,6,23,0.30)]">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-400/20 to-sky-500/20 text-cyan-300 flex items-center justify-center border border-cyan-200/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]">
+          <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
+        </div>
+
+        <div class="min-w-[11rem]">
+          <div class="text-[10px] font-black tracking-[0.22em] uppercase text-white/55">
+            Module Progress
+          </div>
+
+          <div class="w-44 h-2.5 bg-white/10 rounded-full mt-2 overflow-hidden ring-1 ring-white/8">
+            <div
+              class="h-full w-0 rounded-full bg-[linear-gradient(90deg,#22d3ee_0%,#38bdf8_35%,#60a5fa_70%,#2563eb_100%)] shadow-[0_0_18px_rgba(56,189,248,0.45)] transition-all duration-500"
+              id="progress-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        class="md:hidden w-11 h-11 rounded-2xl bg-white/10 text-white border border-white/15 shadow-[0_10px_25px_rgba(2,6,23,0.25)] backdrop-blur-xl hover:bg-white/15 transition"
+        id="btn-menu"
+        type="button">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="flex flex-1 overflow-hidden relative px-3 md:px-6 pb-4 pt-3 md:pt-4">
+
+  <!-- Sidebar Navigation -->
+  <nav id="sidebar" class="absolute md:relative w-72 elite-panel border-r border-slate-200 h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-20 flex flex-col shrink-0 shadow-lg md:shadow-none md:rounded-[1.75rem] md:border md:border-white/70 overflow-hidden">
+    <div class="p-4 border-b border-slate-200/60 flex justify-between items-center bg-white/70 rounded-t-[1.75rem]">
+      <h2 class="font-bold text-slate-800 uppercase tracking-wide text-sm">Practice Gaps</h2>
+      <button class="md:hidden text-slate-400 hover:text-slate-600" id="btn-close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="px-4 pt-4">
+      <div class="left-hero rounded-2xl border border-blue-100 bg-white/80 p-4 shadow-sm">
+        <div class="text-[10px] font-black tracking-[0.22em] uppercase text-blue-600">Curriculum Focus</div>
+        <div class="mt-2 text-lg font-black text-slate-900 leading-tight">Mechanism driven education for durable psoriatic disease control.</div>
+        <div class="mt-3 text-xs text-slate-500 font-medium leading-relaxed">Move from practice gaps to confident patient conversations, pathway literacy, and treatment alignment.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar" id="session-list"></div>
+
+    <div class="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-t border-blue-100 rounded-b-[1.75rem]">
+      <div class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">Accreditation</div>
+      <div class="flex items-center gap-2 text-sm font-bold text-blue-900">
+        <span class="material-symbols-outlined text-base">verified</span>
+        1.0 AMA PRA / CE
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative gap-4 md:gap-6 ml-0 md:ml-6">
+
+    <!-- Left Panel: Patient Viz -->
+    <section class="w-full md:w-5/12 lg:w-4/12 elite-panel border border-white/70 md:rounded-[1.75rem] shadow-sm flex flex-col overflow-y-auto relative overflow-hidden shrink-0">
+
+      <!-- Avatar Container -->
+      <div class="relative w-full aspect-square bg-slate-200 group overflow-hidden border-b border-slate-200 avatar-frame">
+
+        <img
+          id="avatar-image"
+          src="linda.png"
+          alt="Patient Avatar"
+          class="w-full h-full object-cover transition-opacity duration-300"
+          loading="lazy"
+          decoding="async"
+        />
+
+        <!-- Clinical Overlay -->
+        <div class="absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 z-10 p-4 md:p-8 text-center"
+             id="clinical-overlay">
+          <div class="clinical-panel-shell">
+            <div class="clinical-stage">
+              <div class="clinical-hud pointer-events-auto">
+                <div class="inline-flex rounded-full bg-black/45 backdrop-blur-xl border border-white/15 p-1.5 gap-1 shadow-2xl">
+                  <button id="btn-view-scalp" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.18em] text-white/75 hover:text-white hover:bg-white/15 transition" type="button" onclick="setClinicalView('scalp')">View 1</button>
+                  <button id="btn-view-post" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.18em] text-white/75 hover:text-white hover:bg-white/15 transition" type="button" onclick="setClinicalView('post')">View 2</button>
+                </div>
+
+                <div class="clinical-stat">
+                  <span class="material-symbols-outlined text-sky-300 text-[18px]">monitoring</span>
+                  <span class="text-[10px] uppercase font-black tracking-[0.24em] text-slate-300">BSA</span>
+                  <span class="text-sm font-black text-white"><span id="bsa-pct">—</span>%</span>
+                </div>
+              </div>
+
+              <img
+                class="w-full h-full object-cover opacity-95 clinical-zoom"
+                id="clinical-image"
+                src=""
+                alt="Clinical Finding"
+                onerror="this.onerror=null; this.src=window.__missingImgSvg('Clinical Image');"
+              />
+
+              <div class="absolute inset-0 z-10 pointer-events-none" id="hotspot-layer"></div>
+
+              <div class="clinical-footer">
+                <span class="clinical-badge"><span class="material-symbols-outlined text-[15px]">visibility</span> Diagnostic View</span>
+                <div class="clinical-callout">
+                  <div class="label">Clinical Interpretation</div>
+                  <div class="value" id="clinical-desc">Description</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex flex-col items-center gap-4">
+              <h3 class="text-white font-black text-2xl md:text-3xl tracking-tight" id="clinical-title">Finding</h3>
+
+              <button class="px-7 py-3 bg-white text-slate-900 rounded-full font-bold text-sm hover:bg-slate-200 transition-colors flex items-center gap-2 shadow-xl"
+                      id="btn-return" type="button" onclick="window.closeClinicalOverlay && window.closeClinicalOverlay(); return false;">
+                <span class="material-symbols-outlined text-lg">arrow_back</span> Return to Consult
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Examine Button -->
+        <button class="absolute bottom-4 right-4 bg-white/95 backdrop-blur text-blue-900 px-5 py-2.5 rounded-full shadow-xl border border-white/60 font-bold text-sm flex items-center gap-2 hover:bg-white hover:scale-105 transition-all z-30 group-hover:translate-y-0 translate-y-2 opacity-90 group-hover:opacity-100"
+                id="btn-examine" type="button" onclick="window.openClinicalOverlay && window.openClinicalOverlay(); return false;">
+          <span class="material-symbols-outlined text-blue-600">visibility</span>
+          Examine Patient
+        </button>
+        <div class="avatar-glow"></div>
+      </div>
+
+      <!-- Patient Vitals/Details -->
+      <div class="p-6 flex-1 bg-white">
+        <div class="flex justify-between items-start mb-5">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight" id="patient-name">Patient</h2>
+            <p class="text-slate-500 font-medium text-sm mt-0.5" id="patient-demographics">Demographics</p>
+          </div>
+          <div class="px-3 py-1.5 bg-slate-100 text-slate-700 text-[10px] font-black rounded-md uppercase tracking-widest border border-slate-200"
+               id="vibe-badge">Status</div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+            <div class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">Chief Complaint</div>
+            <p class="text-sm text-slate-800 italic font-medium" id="patient-complaint">"Complaint"</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Duration</div>
+              <div class="font-bold text-slate-800" id="patient-duration">Duration</div>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Previous Rx</div>
+              <div class="font-bold text-slate-800 truncate" id="patient-rx" title="Topicals">Topicals</div>
+            </div>
+          </div>
+
+          <div class="mt-4 border-t border-slate-100 pt-4">
+            <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+              <span class="material-symbols-outlined text-slate-400 text-base">psychology</span>
+              Clinical Mindset
+            </div>
+            <p class="text-sm text-slate-600 leading-relaxed font-medium" id="patient-mindset">
+              Mindset text
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Panel: Simulation Interaction -->
+    <section class="flex-1 flex flex-col consult-shell border border-white/70 md:rounded-[1.75rem] shadow-sm relative overflow-hidden">
+      <!-- Learning Flow Section -->
+      <div class="border-b border-slate-200 bg-white/70 px-4 md:px-6 py-5">
+        <div class="max-w-5xl mx-auto flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <div class="text-[10px] font-black tracking-widest uppercase text-blue-600 mb-0.5">Learning Flow</div>
+            <div class="text-sm text-slate-600 font-medium">Navigate the content, consult, and evidence-based assessment.</div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-sm font-bold" id="module-tabs">
+            <button class="module-tab active" data-tab="content" type="button">
+              <span class="material-symbols-outlined text-[18px]">menu_book</span>
+              <span>Gap Content</span>
+            </button>
+            <button class="module-tab" data-tab="consult" type="button">
+              <span class="material-symbols-outlined text-[18px]">person</span>
+              <span>Patient Consult</span>
+            </button>
+            <button class="module-tab" data-tab="competence" type="button">
+              <span class="material-symbols-outlined text-[18px]">quiz</span>
+              <span>Knowledge Check</span>
+            </button>
+            <button class="module-tab" data-tab="resources" type="button">
+              <span class="material-symbols-outlined text-[18px]">library_books</span>
+              <span>Data & Guidelines</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module Stage -->
+      <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-transparent custom-scrollbar" id="chat-container"></div>
+
+      <!-- Interactive Controls -->
+      <div class="border-t border-slate-200 p-5 bg-white/70 backdrop-blur z-20">
+        <div class="max-w-3xl mx-auto" id="interaction-area">
+          <button class="w-full py-3.5 text-white font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 rw-btn-primary hover:-translate-y-0.5"
+                  id="btn-start">
+            Initiate Consultation
+            <span class="material-symbols-outlined">play_arrow</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Completion Modal -->
+<div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" id="completion-modal">
+  <div class="completion-shell rounded-[1.75rem] shadow-2xl max-w-md w-full p-8 transform scale-95 opacity-0 transition-all duration-300 border border-slate-200"
+       id="modal-content">
+    <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5 border border-green-100">
+      <span class="material-symbols-outlined text-green-500 text-5xl">task_alt</span>
+    </div>
+    <h2 class="text-2xl font-black text-center text-slate-900 mb-2 tracking-tight">Practice Gap Addressed</h2>
+    <p class="text-center text-slate-500 font-medium mb-6">You've successfully completed this clinical scenario.</p>
+
+    <div class="bg-blue-50 border border-blue-100 rounded-xl p-5 mb-8">
+      <h4 class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">Evidence-Based Takeaway</h4>
+      <p class="text-sm text-blue-900 font-medium leading-relaxed" id="modal-takeaway">Takeaway text</p>
+    </div>
+
+    <button class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-black transition-colors shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+            id="btn-next">
+      Proceed to Knowledge Check
+    </button>
+  </div>
+</div>
+
+<script>
+  window.__missingImgSvg = (label) => {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800">
+      <rect width="100%" height="100%" fill="#f8fafc"/>
+      <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+        fill="#94a3b8" font-family="Inter, sans-serif" font-weight="bold" font-size="28">${label}</text>
+    </svg>`;
+    return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+  };
+
+  const sessions = [
+    {
+      id: 1, title: "Gap 1: Systemic Under-recognition",
+      patient: {
+        name: "Linda", age: 58, job: "Female, Retired", vibe: "Resigned",
+        avatarSrc: "linda.png",
+        clinicalSrc: "linda_diagnostic.png", 
+        clinicalTitle: "Psoriatic Arthritis Clues",
+        clinicalDesc: "Mild plaque psoriasis but significant structural joint complaints.",
+        clinicalViews: {
+          post: {
+            label: "Joint View", src: "linda_diagnostic.png", bsa: 3,
+            hotspots: [
+              { x: 50, y: 50, label: "Dactylitis", note: "Diffuse swelling of the digit (sausage digit)." },
+              { x: 30, y: 40, label: "Low BSA", note: "Cutaneous symptoms may be mild despite progressive joint destruction." }
+            ]
+          }
+        },
+        complaint: "My skin is fine, but my hands ache constantly.",
+        duration: "20 Years",
+        rx: "Intermittent Topicals",
+        mindset: "Assumes joint pain is just 'getting old'. Unaware of PsA link."
+      },
+      scenario: {
+        intro: "Linda is a long-term psoriasis patient. She hasn't complained about her skin in years, but today she is rubbing her swollen knuckles.",
+        steps: [
+          { id:"start",
+            bot:"My skin is about the same, Doctor. I just use the moisturizer. I don't want to be a bother.",
+            options:[
+              {text:"Glad the skin is stable. I'll refill the topicals.", next:"fail_1"},
+              {text:"Your fingers look a bit puffy. Are you experiencing joint pain?", next:"success_1"},
+              {text:"Do you want a stronger steroid cream?", next:"fail_1"}
+            ]
+          },
+          { id:"fail_1", bot:"Thank you, doctor. Have a good day.",
+            feedback:"CLINICAL GAP: More than 75% of rheumatologists/dermatologists agree PsA goes undiagnosed due to failure to connect skin and joint symptoms. Screen actively.",
+            isEnd:true, success:false
+          },
+          { id:"success_1",
+            bot:"Actually, yes. It takes me an hour to get moving in the morning. I thought it was just arthritis from aging.",
+            feedback:"SUCCESS: The 'Psoriasis and Beyond' study showed 50% of undiagnosed PsD patients screened positive for PsA using the PEST tool. Connecting skin and joint symptoms is critical.",
+            isEnd:true, success:true,
+            takeaway:"Guidelines recommend early recognition of psoriatic disease as a systemic inflammatory disorder. Use validated screening tools like PEST or PASE routinely."
+          }
+        ]
+      }
+    },
+    {
+      id: 2, title: "Gap 2: Mechanistic Literacy (IL-23)",
+      patient: {
+        name: "David", age: 42, job: "Male, Software Dev", vibe: "Frustrated",
+        avatarSrc: "david.png", 
+        clinicalSrc: "handsonkeyboard.png", 
+        clinicalTitle: "Plaque Psoriasis",
+        clinicalDesc: "Thick, recalcitrant plaques despite multiple topical trials.",
+        clinicalViews: {
+          scalp: {
+            label: "Extensor View", src: "handsonkeyboard.png", bsa: 8,
+            hotspots: [
+              { x: 40, y: 50, label: "Thick Plaque", note: "Keratinocyte hyperproliferation driven by downstream IL-17/IL-22." },
+              { x: 60, y: 45, label: "Chronic Inflammation", note: "Sustained by upstream master regulators like IL-23." }
+            ]
+          }
+        },
+        complaint: "I want a treatment that actually fixes the root cause.",
+        duration: "10 Years",
+        rx: "High Potency Steroids",
+        mindset: "Tired of treating symptoms; wants a biological explanation."
+      },
+      scenario: {
+        intro: "David has read about 'biologics' and 'cytokines' online but is confused about which one is best for long-term control.",
+        steps: [
+          { id:"start",
+            bot:"I see all these ads for IL-17 and IL-23 blockers. What's the difference? Don't they all just suppress my immune system?",
+            options:[
+              {text:"Yes, they all broadly suppress the immune system to clear skin.", next:"fail_2"},
+              {text:"IL-17 targets the downstream symptoms. IL-23 targets the upstream source.", next:"success_2"},
+              {text:"They are basically the same; it just depends on your insurance.", next:"fail_2"}
+            ]
+          },
+          { id:"fail_2", bot:"If it's going to shut down my immune system, I'll just stick to creams.",
+            feedback:"CLINICAL GAP: Conflating IL-23 with downstream cytokines obscures its targeted role in immune memory and chronic inflammation without broad immunosuppression.",
+            isEnd:true, success:false
+          },
+          { id:"success_2",
+            bot:"Upstream? So hitting IL-23 stops the inflammation earlier in the chain?",
+            feedback:"SUCCESS: IL-23 is the master regulator of pathogenic Th17 cells. Targeting the unique p19 subunit of IL-23 provides upstream inhibition.",
+            isEnd:true, success:true,
+            takeaway:"Selective inhibition of IL-23 targets a key disease-sustaining pathway while preserving general host defense mechanisms, offering prolonged disease control."
+          }
+        ]
+      }
+    },
+    {
+      id: 3, title: "Gap 3: Treatment Alignment & Durability",
+      patient: {
+        name: "Robert", age: 50, job: "Male, Construction", vibe: "Skeptical",
+        avatarSrc: "robert.png",
+        clinicalSrc: "robert_clinical_findings.png",
+        clinicalTitle: "Extensive Plaques",
+        clinicalDesc: "Large plaques on lower legs. Previous treatments lost efficacy over time.",
+        clinicalViews: {
+          post: {
+            label: "Leg View", src: "robert_clinical_findings.png", bsa: 15,
+            hotspots: [
+              { x: 50, y: 50, label: "Extensive Disease", note: "Requires systemic therapy with high durability." }
+            ]
+          }
+        },
+        complaint: "Everything works for a year, then stops. Prove this is different.",
+        duration: "15 Years",
+        rx: "Failed Older Biologics",
+        mindset: "Needs evidence of long-term durability to commit to another injectable."
+      },
+      scenario: {
+        intro: "Robert is hesitant to start a new injectable biologic because his last medication stopped working after 14 months.",
+        steps: [
+          { id:"start",
+            bot:"They work for a year, then the plaques come back. Why should I expect an IL-23 inhibitor to be any different?",
+            options:[
+              {text:"We just have to keep switching when they fail.", next:"fail_3"},
+              {text:"IL-23 inhibitors cut off the source of Th17 cells, yielding more durable remission.", next:"success_3"},
+              {text:"Nothing lasts forever, but it's worth a try.", next:"fail_3"}
+            ]
+          },
+          { id:"fail_3", bot:"Sounds like a guess. I'm tired of the rollercoaster.",
+            feedback:"CLINICAL GAP: Treatment success must consider durability. Failing to align treatment mechanisms with the goal of long-term control leads to patient frustration.",
+            isEnd:true, success:false
+          },
+          { id:"success_3",
+            bot:"So by stopping it at the source, it doesn't just bounce back?",
+            feedback:"SUCCESS: Clinical evidence shows that while IL-17 inhibitors provide fast responses, IL-23 inhibitors yield highly durable responses due to upstream targeting.",
+            isEnd:true, success:true,
+            takeaway:"Treat-to-target approaches (e.g., BSA ≤ 1% by ~3 months) should prioritize mechanisms like IL-23 that offer sustained disease control."
+          }
+        ]
+      }
+    },
+    {
+      id: 4, title: "Gap 3: Emerging Oral Therapies",
+      patient: {
+        name: "Elena", age: 38, job: "Female, Pharma Sales", vibe: "Urgent",
+        avatarSrc: "elena.png",
+        clinicalSrc: "elena_clinicalfindings.png",
+        clinicalTitle: "Visible Plaques",
+        clinicalDesc: "Moderate plaques causing high psychosocial burden.",
+        clinicalViews: {
+          scalp: {
+            label: "Wrist View", src: "elena_clinicalfindings.png", bsa: 4,
+            hotspots: [
+              { x: 50, y: 50, label: "Visible Area", note: "High impact on QoL despite lower absolute BSA." }
+            ]
+          }
+        },
+        complaint: "I need this clear, but I absolutely cannot do injections.",
+        duration: "4 Years",
+        rx: "Topicals (Failed)",
+        mindset: "Needs high systemic efficacy but has severe needle phobia."
+      },
+      scenario: {
+        intro: "Elena understands she needs systemic therapy but is adamant against injectables.",
+        steps: [
+          { id:"start",
+            bot:"I know creams aren't enough anymore. But I will faint if I have to give myself a shot. Are there any pills that actually target these pathways?",
+            options:[
+              {text:"If you want targeted therapy, you have to use an injectable.", next:"fail_4"},
+              {text:"There is an oral targeted peptide in development that blocks the IL-23 receptor.", next:"success_4"},
+              {text:"We can try older oral immunosuppressants instead.", next:"fail_4"}
+            ]
+          },
+          { id:"fail_4", bot:"Then I guess I'll just live with it.",
+            feedback:"CLINICAL GAP: Failing to integrate emerging treatments (like oral IL-23 inhibitors) limits options for patients with specific delivery preferences.",
+            isEnd:true, success:false
+          },
+          { id:"success_4",
+            bot:"An oral pill that works like the biologics? That would change everything for me.",
+            feedback:"SUCCESS: Icotrokinra is the first oral peptide that selectively binds the IL-23 receptor with high affinity, precisely inhibiting IL-23 signaling.",
+            isEnd:true, success:true,
+            takeaway:"The ICONIC-LEAD trial showed Icotrokinra resulted in significantly higher skin clearance at week 16 vs placebo. It offers a targeted oral option for IL-23."
+          }
+        ]
+      }
+    }
+  ];
+
+  let currentSessionIdx = 0;
+  let activeTab = 'content';
+  let completedSessions = [];
+  let consultedSessions = [];
+  let quizSelections = {};
+  let quizPassedSessions = [];
+
+  const dom = {
+    sidebar: document.getElementById('sidebar'),
+    sessionList: document.getElementById('session-list'),
+    avatar: document.getElementById('avatar-image'),
+    clinicalOverlay: document.getElementById('clinical-overlay'),
+    clinicalImg: document.getElementById('clinical-image'),
+    clinicalTitle: document.getElementById('clinical-title'),
+    clinicalDesc: document.getElementById('clinical-desc'),
+    ptName: document.getElementById('patient-name'),
+    ptDemo: document.getElementById('patient-demographics'),
+    ptVibe: document.getElementById('vibe-badge'),
+    ptComplaint: document.getElementById('patient-complaint'),
+    ptDuration: document.getElementById('patient-duration'),
+    ptRx: document.getElementById('patient-rx'),
+    ptMindset: document.getElementById('patient-mindset'),
+    chatContainer: document.getElementById('chat-container'),
+    interactionArea: document.getElementById('interaction-area'),
+    progressBar: document.getElementById('progress-bar'),
+    completionModal: document.getElementById('completion-modal'),
+    modalTakeaway: document.getElementById('modal-takeaway'),
+    modalContent: document.getElementById('modal-content'),
+    moduleTabs: document.querySelectorAll('[data-tab]'),
+    btnMenu: document.getElementById('btn-menu'),
+    btnClose: document.getElementById('btn-close'),
+    btnExamine: document.getElementById('btn-examine'),
+    btnReturn: document.getElementById('btn-return'),
+    btnNext: document.getElementById('btn-next')
+  };
+
+  function getCurrentClinicalViews() {
+    const s = sessions[currentSessionIdx];
+    return (s && s.patient && s.patient.clinicalViews) ? s.patient.clinicalViews : null;
+  }
+
+  function renderHotspots(hotspots) {
+    const layer = document.getElementById('hotspot-layer');
+    if (!layer) return;
+    layer.innerHTML = '';
+    layer.classList.remove('pointer-events-none');
+    layer.classList.add('pointer-events-auto');
+
+    hotspots.forEach((h) => {
+      const hs = document.createElement('div');
+      hs.className = 'hotspot';
+      hs.style.left = (h.x ?? 50) + '%';
+      hs.style.top  = (h.y ?? 50) + '%';
+
+      const tip = document.createElement('div');
+      tip.className = 'tooltip';
+      tip.style.left = hs.style.left;
+      tip.style.top  = hs.style.top;
+      tip.innerHTML = `<div class="font-bold text-white mb-1">${h.label || 'Finding'}</div><div class="text-slate-200">${h.note || ''}</div>`;
+
+      layer.appendChild(hs);
+      layer.appendChild(tip);
+    });
+  }
+
+  function setClinicalView(viewKey) {
+    const views = getCurrentClinicalViews();
+    const btnScalp = document.getElementById('btn-view-scalp');
+    const btnPost  = document.getElementById('btn-view-post');
+    const controlsWrap = btnScalp ? btnScalp.closest('.inline-flex') : null;
+
+    if (!views) {
+      if (controlsWrap) controlsWrap.style.display = 'none';
+      renderHotspots([]);
+      document.getElementById('bsa-pct').textContent = '—';
+      return;
+    }
+
+    const hasScalp = !!views.scalp;
+    const hasPost  = !!views.post;
+    if (controlsWrap) controlsWrap.style.display = (hasScalp && hasPost) ? 'inline-flex' : 'none';
+
+    let chosenKey = (viewKey && views[viewKey]) ? viewKey : null;
+    if (!chosenKey) chosenKey = hasScalp ? 'scalp' : (hasPost ? 'post' : Object.keys(views)[0]);
+
+    if (!chosenKey || !views[chosenKey]) {
+      renderHotspots([]);
+      document.getElementById('bsa-pct').textContent = '—';
+      return;
+    }
+
+    if (btnScalp && btnPost && hasScalp && hasPost) {
+      btnScalp.textContent = views.scalp?.label || "View 1";
+      btnPost.textContent  = views.post?.label  || "View 2";
+      btnScalp.classList.toggle('view-active', chosenKey === 'scalp');
+      btnPost.classList.toggle('view-active', chosenKey === 'post');
+    }
+
+    dom.clinicalImg.src = views[chosenKey].src;
+    document.getElementById('bsa-pct').textContent = (views[chosenKey].bsa ?? '—');
+    renderHotspots(views[chosenKey].hotspots || []);
+  }
+
+  function getLearningContent(data) {
+    const objectives = [
+      'Describe the multisystem burden of psoriatic disease and comprehensive assessment.',
+      'Explain the role of IL-23 and differentiate upstream versus downstream cytokine targeting.',
+      'Apply mechanism-based treatment strategies to optimize long-term outcomes.'
+    ];
+
+    const byId = {
+      1: {
+        title: 'Gap 1: Systemic Under-recognition',
+        summary: 'Psoriatic disease is frequently approached as an isolated dermatologic condition, leading to delayed diagnosis and incomplete assessment of joint, cardiometabolic, and mood disorders.',
+        pearls: ['Over 75% of specialists agree PsA goes undiagnosed.', 'The Psoriasis and Beyond study found 50% undiagnosed PsA via PEST.', 'Use validated tools: PEST (patient-facing) and PASE (clinician-facing).']
+      },
+      2: {
+        title: 'Gap 2: Mechanistic Literacy',
+        summary: 'IL-23 is increasingly referenced, but clinicians often conflate it with downstream effectors. Understanding its master regulatory role is crucial for treatment selection.',
+        pearls: ['IL-23 is a heterodimer containing the unique p19 subunit.', 'IL-23 is an upstream master regulator driving pathogenic Th17 cells.', 'Targeting upstream IL-23 provides robust, durable disease control.']
+      },
+      3: {
+        title: 'Gap 3: Treatment Alignment',
+        summary: 'Short-term skin clearance is often prioritized over durability. Therapy selection must align mechanism of action with long-term control goals.',
+        pearls: ['Treat-to-target: Aim for BSA ≤ 1% by ~3 months.', 'IL-17 inhibitors offer fast responses; IL-23 inhibitors offer highly durable responses.', 'Injectables include guselkumab, risankizumab, and tildrakizumab.']
+      },
+      4: {
+        title: 'Gap 3: Emerging Modalities',
+        summary: 'Patient preference heavily impacts adherence. Clinicians must stay updated on emerging formulations that align with specific patient delivery needs.',
+        pearls: ['Icotrokinra is the first oral peptide targeting the IL-23 receptor.', 'It selectively binds the IL-23 receptor with high affinity.', 'ICONIC-LEAD trial showed superior clearance at week 16 vs placebo.']
+      }
+    };
+
+    return { objectives: objectives, ...(byId[data.id] || byId[1]) };
+  }
+
+  function getQuizForSession(data) {
+    const quizzes = {
+      1: [
+        { q: 'In the Psoriasis and Beyond study, what percentage of undiagnosed patients screened positive for PsA symptoms?', choices: ['15%', '25%', '50%', '75%'], answer: 2 },
+        { q: 'Which tool is validated for dermatologists to evaluate and refer PsA?', choices: ['PEST', 'PASE', 'DLQI', 'sPGA'], answer: 1 },
+        { q: 'According to GRAPPA, what else should be screened beyond joints?', choices: ['Bone marrow density', 'Cardiometabolic risk & mood', 'Liver biopsy', 'Lung capacity'], answer: 1 }
+      ],
+      2: [
+        { q: 'Which subunit is unique to IL-23 (not shared with IL-12)?', choices: ['p40', 'p19', 'Th17', 'TNF'], answer: 1 },
+        { q: 'What describes IL-23’s position in the inflammatory cascade?', column: true, choices: ['Downstream effector driving hyperproliferation directly', 'Upstream master regulator maintaining Th17 cells', 'Broad immunosuppressant', 'Keratinocyte-specific receptor'], answer: 1 },
+        { q: 'Compared to downstream blockade, upstream IL-23 inhibition is uniquely associated with:', choices: ['Faster initial clearance', 'Prolonged, durable disease control', 'Higher risk of systemic infection', 'Narrower immunomodulation'], answer: 1 }
+      ],
+      3: [
+        { q: 'What is a recommended treat-to-target goal?', choices: ['PASI 50 by 6 months', 'BSA ≤ 1% by ~3 months', 'BSA ≤ 5% by 12 months', 'Clearance of only visible plaques'], answer: 1 },
+        { q: 'Which of the following is an injectable IL-23 inhibitor?', choices: ['Ustekinumab', 'Risankizumab', 'Deucravacitinib', 'Golimumab'], answer: 1 },
+        { q: 'What primary outcome do IL-23 inhibitors prioritize?', choices: ['Speed of onset', 'Durable, long-term remission', 'Topical replacement only', 'Joint-only efficacy'], answer: 1 }
+      ],
+      4: [
+        { q: 'What makes Icotrokinra unique among IL-23 targeted therapies?', choices: ['It targets IL-17', 'It is an oral targeted peptide', 'It requires an IV infusion', 'It is applied topically'], answer: 1 },
+        { q: 'What was the comparator in the ICONIC-ADVANCE trial?', choices: ['Placebo only', 'Deucravacitinib', 'Ustekinumab', 'Guselkumab'], answer: 1 },
+        { q: 'Oral targeted peptides like Icotrokinra address which specific patient barrier?', choices: ['Cost', 'Topical fatigue', 'Needle phobia / injection aversion', 'Frequency of administration'], answer: 2 }
+      ]
+    };
+    return quizzes[data.id] || quizzes[1];
+  }
+
+  function getResourcesForSession(data) {
+    return [
+      { icon: 'description', title: 'Targeting the Source Review', desc: `Full text summary of the IL-23 pathway and clinical gaps.`, meta: 'Review Article' },
+      { icon: 'science', title: 'Clinical Trial Data: ICONIC', desc: 'Summary of phase 3 trials comparing oral IL-23 peptides vs comparators.', meta: 'Evidence Base' },
+      { icon: 'fact_check', title: 'PEST & PASE Tools', desc: 'Downloadable screening questionnaires for clinical integration.', meta: 'Practice Tool' },
+      { icon: 'menu_book', title: 'GRAPPA Guidelines (2021)', desc: 'Updated treatment recommendations for psoriatic arthritis.', meta: 'Clinical Guideline' }
+    ];
+  }
+
+  function setActiveTabUI() {
+    dom.moduleTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === activeTab));
+  }
+
+  function renderContentTab() {
+    const data = sessions[currentSessionIdx];
+    const content = getLearningContent(data);
+    dom.chatContainer.innerHTML = `
+      <div class="module-shell space-y-5 fade-in">
+        <div class="module-card p-6 md:p-8 bg-white">
+          <span class="pill-kicker bg-blue-50 text-blue-700"><span class="material-symbols-outlined text-sm">school</span> Pathway Education</span>
+          <div class="mt-5 flex flex-col gap-6 lg:flex-row lg:items-start">
+            <div class="flex-1">
+              <h3 class="text-3xl font-black text-slate-900 leading-tight tracking-tight">${content.title}</h3>
+              <p class="mt-3 text-slate-600 text-base leading-relaxed">${content.summary}</p>
+              <div class="mt-6 grid gap-4 sm:grid-cols-3">
+                ${content.objectives.map((item, idx) => `
+                  <div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl shadow-sm">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-2">Objective ${idx + 1}</div>
+                    <p class="text-sm text-slate-700 font-medium leading-relaxed">${item}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            <div class="w-full lg:w-[20rem] module-card p-6 bg-gradient-to-br from-white to-blue-50/50 border border-blue-100 shadow-sm">
+              <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Patient Case Profile</div>
+              <div class="text-2xl font-black text-slate-900 tracking-tight">${data.patient.name}</div>
+              <div class="text-sm font-medium text-slate-500 mt-0.5">${data.patient.age}, ${data.patient.job}</div>
+              <div class="mt-5 space-y-4 text-sm text-slate-700">
+                <div class="bg-white p-3 rounded-lg border border-slate-100"><span class="font-bold text-slate-900 block text-xs uppercase mb-1">Chief Concern</span> "${data.patient.complaint}"</div>
+                <div class="bg-white p-3 rounded-lg border border-slate-100"><span class="font-bold text-slate-900 block text-xs uppercase mb-1">Clinical Focus</span> ${data.patient.clinicalTitle}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-5 lg:grid-cols-[1.2fr_.8fr]">
+          <div class="module-card p-6 bg-white">
+            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Evidence-Based Pearls</div>
+            <div class="space-y-3">
+              ${content.pearls.map((item, idx) => `
+                <div class="flex items-start gap-4 p-4 rounded-xl bg-blue-50/30 border border-blue-100">
+                  <div class="w-7 h-7 rounded-full bg-blue-600 text-white shrink-0 flex items-center justify-center font-bold text-xs mt-0.5">${idx + 1}</div>
+                  <p class="text-sm font-medium leading-relaxed text-slate-800">${item}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="module-card p-6 bg-slate-50 border border-slate-200">
+            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Recommended Flow</div>
+            <div class="space-y-3 text-sm text-slate-700 font-medium">
+              <div class="p-4 rounded-xl bg-white shadow-sm border border-blue-200 border-l-4 border-l-blue-500"><span class="font-bold text-blue-900">1. Review the Data</span><br/><span class="text-slate-500 text-xs font-normal">Internalize the clinical gaps.</span></div>
+              <div class="p-4 rounded-xl bg-white shadow-sm border border-slate-200"><span class="font-bold text-slate-900">2. Run Patient Consult</span><br/><span class="text-slate-500 text-xs font-normal">Apply principles in conversation.</span></div>
+              <div class="p-4 rounded-xl bg-white shadow-sm border border-slate-200"><span class="font-bold text-slate-900">3. Knowledge Check</span><br/><span class="text-slate-500 text-xs font-normal">Validate understanding.</span></div>
+            </div>
+            <button class="mt-6 w-full py-4 text-white font-bold rounded-xl rw-btn-primary flex items-center justify-center gap-2 shadow-lg" type="button" onclick="switchTab('consult')">
+              Start Simulation <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    dom.interactionArea.innerHTML = `<div class="module-shell"><div class="text-[10px] uppercase tracking-widest text-slate-400 font-black text-center">Awaiting Consultation Start</div></div>`;
+  }
+
+  function renderConsultIntro() {
+    const data = sessions[currentSessionIdx];
+    dom.chatContainer.innerHTML = `
+      <div class="flex gap-4 max-w-2xl mx-auto fade-in mt-4">
+        <div class="w-10 h-10 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-blue-600 text-[20px]">medical_information</span>
+        </div>
+        <div class="bg-white p-5 rounded-2xl rounded-tl-none shadow-sm border border-slate-200 text-slate-700">
+          <p class="font-black text-xs uppercase tracking-widest text-blue-600 mb-2">Scenario Context</p>
+          <p class="font-medium leading-relaxed">${data.scenario.intro}</p>
+        </div>
+      </div>
+    `;
+    dom.interactionArea.innerHTML = `
+      <div class="module-shell">
+        <button class="w-full py-4 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 rw-btn-primary shadow-lg hover:-translate-y-0.5"
+                id="btn-start-inner" type="button">
+          Initiate Conversation
+          <span class="material-symbols-outlined">chat</span>
+        </button>
+      </div>
+    `;
+    document.getElementById('btn-start-inner').addEventListener('click', startSession);
+  }
+
+  function renderResourcesTab() {
+    const data = sessions[currentSessionIdx];
+    const resources = getResourcesForSession(data);
+    dom.chatContainer.innerHTML = `
+      <div class="module-shell space-y-5 fade-in">
+        <div class="module-card p-6 md:p-8 bg-white">
+          <span class="pill-kicker bg-indigo-50 text-indigo-700"><span class="material-symbols-outlined text-sm">library_books</span> References</span>
+          <h3 class="mt-4 text-3xl font-black text-slate-900 tracking-tight">Clinical Data & Guidelines</h3>
+          <p class="mt-3 text-slate-600 leading-relaxed font-medium">Evidence-based documents supporting the IL-23 pathway education in this module.</p>
+        </div>
+        <div class="grid gap-4">
+          ${resources.map((item) => `
+            <div class="resource-link module-card p-5 bg-white">
+              <div class="flex items-start gap-5">
+                <div class="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 text-blue-600 shrink-0 flex items-center justify-center shadow-sm">
+                  <span class="material-symbols-outlined text-2xl">${item.icon}</span>
+                </div>
+                <div>
+                  <div class="font-bold text-slate-900 text-lg">${item.title}</div>
+                  <div class="mt-1 text-sm text-slate-600 font-medium">${item.desc}</div>
+                  <div class="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 inline-block px-2 py-1 rounded">${item.meta}</div>
+                </div>
+              </div>
+              <div class="text-blue-600">
+                <span class="material-symbols-outlined">download</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    dom.interactionArea.innerHTML = `<div class="module-shell"><button class="w-full py-4 rounded-xl border-2 border-slate-200 bg-white font-bold text-slate-700 hover:bg-slate-50 transition-colors" type="button" onclick="switchTab('content')">Return to Content</button></div>`;
+  }
+
+  function renderCompetenceTab() {
+    const data = sessions[currentSessionIdx];
+    const quiz = getQuizForSession(data);
+    const selections = quizSelections[currentSessionIdx] || [];
+    const consultDone = consultedSessions.includes(currentSessionIdx);
+    const passed = quizPassedSessions.includes(currentSessionIdx);
+
+    if (!consultDone && !passed) {
+      dom.chatContainer.innerHTML = `
+        <div class="module-shell fade-in mt-10">
+          <div class="module-card p-10 text-center bg-white">
+            <div class="w-20 h-20 rounded-full bg-slate-50 border border-slate-100 text-slate-400 mx-auto flex items-center justify-center shadow-inner">
+              <span class="material-symbols-outlined text-4xl">lock</span>
+            </div>
+            <h3 class="mt-6 text-2xl font-black text-slate-900">Consultation Required</h3>
+            <p class="mt-3 text-slate-500 max-w-md mx-auto font-medium">Complete the simulated patient consult to unlock the knowledge check for this module.</p>
+          </div>
+        </div>
+      `;
+      dom.interactionArea.innerHTML = `<div class="module-shell"><button class="w-full py-4 text-white font-bold rounded-xl rw-btn-primary shadow-lg" type="button" onclick="switchTab('consult')">Go to Patient Consult</button></div>`;
+      return;
+    }
+
+    dom.chatContainer.innerHTML = `
+      <div class="module-shell space-y-6 fade-in">
+        <div class="module-card p-6 md:p-8 bg-white">
+          <span class="pill-kicker bg-purple-50 text-purple-700"><span class="material-symbols-outlined text-sm">workspace_premium</span> Assessment</span>
+          <h3 class="mt-4 text-3xl font-black text-slate-900 tracking-tight">Knowledge Check</h3>
+          <p class="mt-3 text-slate-600 font-medium leading-relaxed">Validate your understanding of the IL-23 pathway and systemic PsD management. Score 2/3 to pass.</p>
+        </div>
+        <div class="space-y-6">
+          ${quiz.map((item, qIdx) => `
+            <div class="module-card p-6 md:p-8 bg-white">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-6 h-6 rounded bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-black">${qIdx + 1}</div>
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Question</div>
+              </div>
+              <h4 class="text-lg font-bold text-slate-900 leading-snug mb-5">${item.q}</h4>
+              <div class="grid gap-3 ${item.column ? 'grid-cols-1' : 'md:grid-cols-2'}">
+                ${item.choices.map((choice, cIdx) => `
+                  <button class="quiz-choice text-left p-4 rounded-xl border-2 border-slate-100 bg-white hover:border-blue-400 hover:bg-blue-50 transition-all font-medium text-slate-700 ${selections[qIdx] === cIdx ? 'selected' : ''}" type="button" data-qidx="${qIdx}" data-cidx="${cIdx}">
+                    ${choice}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    dom.chatContainer.querySelectorAll('.quiz-choice').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qIdx = Number(btn.dataset.qidx);
+        const cIdx = Number(btn.dataset.cidx);
+        const arr = [...(quizSelections[currentSessionIdx] || [])];
+        arr[qIdx] = cIdx;
+        quizSelections[currentSessionIdx] = arr;
+        renderCompetenceTab();
+      });
+    });
+
+    const ready = selections.filter(v => v !== undefined).length === quiz.length;
+    dom.interactionArea.innerHTML = `
+      <div class="module-shell space-y-3">
+        <button class="w-full py-4 rounded-xl font-bold transition-all ${ready ? 'rw-btn-primary text-white shadow-lg hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}" ${ready ? '' : 'disabled'} id="btn-submit-quiz" type="button">Submit Assessment</button>
+      </div>
+    `;
+    const submitBtn = document.getElementById('btn-submit-quiz');
+    if (submitBtn) submitBtn.addEventListener('click', submitCompetenceCheck);
+  }
+
+  function submitCompetenceCheck() {
+    const data = sessions[currentSessionIdx];
+    const quiz = getQuizForSession(data);
+    const selections = quizSelections[currentSessionIdx] || [];
+    let score = 0;
+
+    dom.chatContainer.querySelectorAll('.quiz-choice').forEach(btn => {
+      const qIdx = Number(btn.dataset.qidx);
+      const cIdx = Number(btn.dataset.cidx);
+      btn.classList.remove('selected');
+      if (quiz[qIdx].answer === cIdx) {
+        btn.classList.add('correct');
+      } else if (selections[qIdx] === cIdx) {
+        btn.classList.add('incorrect');
+      }
+    });
+
+    quiz.forEach((item, idx) => { if (selections[idx] === item.answer) score += 1; });
+    const passed = score >= 2;
+    if (passed && !quizPassedSessions.includes(currentSessionIdx)) quizPassedSessions.push(currentSessionIdx);
+    if (passed && !completedSessions.includes(currentSessionIdx)) completedSessions.push(currentSessionIdx);
+    renderSessionList();
+
+    dom.interactionArea.innerHTML = `
+      <div class="module-shell">
+        <div class="p-6 rounded-2xl ${passed ? 'bg-green-50 border border-green-200 shadow-sm' : 'bg-rose-50 border border-rose-200 shadow-sm'} fade-in">
+          <div class="flex items-start gap-4">
+            <span class="material-symbols-outlined ${passed ? 'text-green-500' : 'text-rose-500'} text-4xl">${passed ? 'check_circle' : 'cancel'}</span>
+            <div class="flex-1">
+              <h3 class="font-black text-xl tracking-tight ${passed ? 'text-green-900' : 'text-rose-900'}">${passed ? 'Assessment Passed' : 'Review Required'}</h3>
+              <p class="mt-1 font-medium ${passed ? 'text-green-700' : 'text-rose-700'}">Score: ${score} / ${quiz.length}. ${passed ? 'Module criteria met.' : 'A score of 2 is needed.'}</p>
+              <div class="mt-5 flex flex-col sm:flex-row gap-3">
+                <button class="px-6 py-3 rounded-xl font-bold transition-all shadow-sm ${passed ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-slate-900 text-white hover:bg-black'}" type="button" onclick="${passed ? 'goToNextModuleOrResources()' : 'renderCompetenceTab()'}">${passed ? 'Continue Curriculum' : 'Retry Assessment'}</button>
+                <button class="px-6 py-3 rounded-xl font-bold border-2 border-white/50 bg-white/50 text-slate-700 hover:bg-white transition-all" type="button" onclick="switchTab('content')">Review Content</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function goToNextModuleOrResources() {
+    if (currentSessionIdx < sessions.length - 1) {
+      loadSession(currentSessionIdx + 1);
+    } else {
+      switchTab('resources');
+      alert('Congratulations. You have completed the IL-23 Pathway curriculum.');
+    }
+  }
+
+  function switchTab(tabName) {
+    activeTab = tabName;
+    setActiveTabUI();
+    if (tabName === 'content') return renderContentTab();
+    if (tabName === 'consult') return renderConsultIntro();
+    if (tabName === 'competence') return renderCompetenceTab();
+    if (tabName === 'resources') return renderResourcesTab();
+  }
+
+
+  function toggleSidebar(forceClose=false) {
+    if (forceClose) dom.sidebar.classList.add('-translate-x-full');
+    else dom.sidebar.classList.toggle('-translate-x-full');
+  }
+
+  function openClinicalOverlay() {
+    if (!dom.clinicalOverlay) return;
+    dom.clinicalOverlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+    dom.clinicalOverlay.classList.add('opacity-100', 'pointer-events-auto');
+    dom.clinicalOverlay.style.display = 'flex';
+    requestAnimationFrame(() => dom.clinicalOverlay.classList.add('zoomed'));
+
+    const views = getCurrentClinicalViews();
+    if (views) {
+      const preferred = views.scalp ? 'scalp' : (views.post ? 'post' : Object.keys(views)[0]);
+      setClinicalView(preferred);
+    } else {
+      renderHotspots([]);
+      const bsa = document.getElementById('bsa-pct');
+      if (bsa) bsa.textContent = '—';
+    }
+  }
+
+  function closeClinicalOverlay() {
+    if (!dom.clinicalOverlay) return;
+    dom.clinicalOverlay.classList.remove('opacity-100', 'pointer-events-auto', 'zoomed');
+    dom.clinicalOverlay.classList.add('opacity-0', 'pointer-events-none');
+    renderHotspots([]);
+    const bsa = document.getElementById('bsa-pct');
+    if (bsa) bsa.textContent = '—';
+    const btnScalp = document.getElementById('btn-view-scalp');
+    const btnPost  = document.getElementById('btn-view-post');
+    if (btnScalp) btnScalp.classList.remove('view-active');
+    if (btnPost) btnPost.classList.remove('view-active');
+  }
+
+  function toggleExamine() {
+    const isVisible = dom.clinicalOverlay && dom.clinicalOverlay.classList.contains('opacity-100');
+    if (isVisible) closeClinicalOverlay();
+    else openClinicalOverlay();
+  }
+
+  function updateProgress() {
+    const pct = (completedSessions.length / sessions.length) * 100;
+    dom.progressBar.style.width = `${pct}%`;
+  }
+
+  function renderSessionList() {
+    dom.sessionList.innerHTML = sessions.map((s, idx) => {
+      const done = completedSessions.includes(idx);
+      const active = idx === currentSessionIdx;
+      return `
+        <button data-idx="${idx}"
+          class="session-item-elite w-full text-left p-3.5 rounded-2xl text-sm transition-all flex items-center justify-between group
+                 ${active ? 'active bg-blue-50/90 border border-blue-200 shadow-sm text-blue-900 font-bold' : 'bg-white/80 border border-slate-100 text-slate-600 hover:border-slate-300 hover:bg-white'}">
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black
+                        ${done ? 'bg-green-500 text-white shadow-sm' : (active ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-400')}">
+              ${done ? '✓' : idx + 1}
+            </div>
+            <span class="${active ? '' : 'font-medium'}">${s.title}</span>
+          </div>
+        </button>
+      `;
+    }).join('');
+
+    dom.sessionList.querySelectorAll('button[data-idx]').forEach(btn => {
+      btn.addEventListener('click', () => loadSession(Number(btn.dataset.idx)));
+    });
+
+    updateProgress();
+  }
+
+  function loadSession(idx) {
+    currentSessionIdx = idx;
+    const data = sessions[idx];
+
+    renderSessionList();
+    if (window.innerWidth < 768) toggleSidebar(true);
+
+    dom.avatar.src = data.patient.avatarSrc;
+    dom.clinicalImg.src = data.patient.clinicalSrc;
+    dom.clinicalTitle.textContent = data.patient.clinicalTitle;
+    dom.clinicalDesc.textContent = data.patient.clinicalDesc;
+
+    const btnScalp = document.getElementById('btn-view-scalp');
+    const btnPost  = document.getElementById('btn-view-post');
+    const viewsObj = data.patient.clinicalViews || null;
+    const hasViews = !!viewsObj;
+    const hasScalp = !!(viewsObj && viewsObj.scalp);
+    const hasPost  = !!(viewsObj && viewsObj.post);
+    const controlsWrap = btnScalp ? btnScalp.closest('.inline-flex') : null;
+
+    if (controlsWrap) controlsWrap.style.display = (hasViews && hasScalp && hasPost) ? 'inline-flex' : 'none';
+
+    if (btnScalp && btnPost) {
+      btnScalp.disabled = !(hasViews && hasScalp);
+      btnPost.disabled  = !(hasViews && hasPost);
+      btnScalp.classList.toggle('opacity-40', !(hasViews && hasScalp));
+      btnPost.classList.toggle('opacity-40', !(hasViews && hasPost));
+      btnScalp.classList.toggle('cursor-not-allowed', !(hasViews && hasScalp));
+      btnPost.classList.toggle('cursor-not-allowed', !(hasViews && hasPost));
+    }
+
+    renderHotspots([]);
+    const bsaEl = document.getElementById('bsa-pct');
+    if (bsaEl) {
+      const defaultKey = hasScalp ? 'scalp' : (hasPost ? 'post' : null);
+      bsaEl.textContent = defaultKey ? (viewsObj[defaultKey]?.bsa ?? '—') : '—';
+    }
+
+    dom.ptName.textContent = data.patient.name;
+    dom.ptDemo.textContent = `${data.patient.age}, ${data.patient.job}`;
+    dom.ptVibe.textContent = data.patient.vibe;
+    dom.ptComplaint.textContent = `"${data.patient.complaint}"`;
+    dom.ptDuration.textContent = data.patient.duration;
+    dom.ptRx.textContent = data.patient.rx;
+    dom.ptMindset.textContent = data.patient.mindset;
+
+    closeClinicalOverlay();
+
+    switchTab('content');
+  }
+
+  function addMessage(text, type) {
+    const isBot = type === 'bot';
+    const html = `
+      <div class="flex gap-4 max-w-2xl mx-auto fade-in mt-4 ${isBot ? '' : 'flex-row-reverse'}">
+        <div class="w-10 h-10 rounded-full ${isBot ? 'bg-slate-100 border border-slate-200' : 'bg-blue-600'} flex items-center justify-center shrink-0">
+          ${isBot ? '<span class="material-symbols-outlined text-slate-500 text-[20px]">person</span>'
+                 : '<span class="material-symbols-outlined text-white text-[20px]">stethoscope</span>'}
+        </div>
+        <div class="${isBot ? 'bubble-bot bg-white/95 text-slate-700 rounded-tl-none shadow-sm border border-slate-200' : 'bubble-user bg-gradient-to-br from-blue-600 to-sky-500 text-white rounded-tr-none shadow-md'} p-4 rounded-2xl max-w-[85%] font-medium">
+          <p>${text}</p>
+        </div>
+      </div>
+    `;
+    dom.chatContainer.insertAdjacentHTML('beforeend', html);
+    dom.chatContainer.scrollTop = dom.chatContainer.scrollHeight;
+  }
+
+  function addTypingIndicator() {
+    const html = `
+      <div id="typing-indicator" class="flex gap-4 max-w-2xl mx-auto fade-in mt-4">
+        <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-slate-500 text-[20px]">person</span>
+        </div>
+        <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm border border-slate-200 w-20 flex items-center justify-center gap-1.5 typing-indicator">
+          <span class="w-2 h-2 bg-slate-300 rounded-full block"></span>
+          <span class="w-2 h-2 bg-slate-300 rounded-full block"></span>
+          <span class="w-2 h-2 bg-slate-300 rounded-full block"></span>
+        </div>
+      </div>
+    `;
+    dom.chatContainer.insertAdjacentHTML('beforeend', html);
+    dom.chatContainer.scrollTop = dom.chatContainer.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const el = document.getElementById('typing-indicator');
+    if (el) el.remove();
+  }
+
+  function showOptions(options) {
+    dom.interactionArea.innerHTML = `
+      <div class="grid gap-3 fade-in">
+        ${options.map(opt => `
+          <button class="w-full text-left p-4 bg-white border-2 border-slate-200 rounded-2xl hover:border-blue-500 hover:bg-blue-50 transition-all font-bold text-slate-700 flex items-center justify-between group shadow-sm hover:shadow"
+                  data-next="${opt.next}">
+            <span>${opt.text}</span>
+            <span class="material-symbols-outlined opacity-0 group-hover:opacity-100 text-blue-500 transition-opacity">arrow_forward</span>
+          </button>
+        `).join('')}
+      </div>
+    `;
+
+    dom.interactionArea.querySelectorAll('button[data-next]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const nextId = btn.dataset.next;
+        const text = btn.querySelector('span').textContent;
+        addMessage(text, 'user');
+        dom.interactionArea.innerHTML = '';
+        goToStep(nextId);
+      });
+    });
+  }
+
+  function showEndState(step) {
+    const isSuccess = step.success;
+
+    dom.interactionArea.innerHTML = `
+      <div class="p-6 rounded-2xl ${isSuccess ? 'bg-green-50 border border-green-200 shadow-sm' : 'bg-rose-50 border border-rose-200 shadow-sm'} fade-in">
+        <div class="flex items-start gap-4">
+          <span class="material-symbols-outlined ${isSuccess ? 'text-green-600' : 'text-rose-600'} text-4xl">
+            ${isSuccess ? 'check_circle' : 'cancel'}
+          </span>
+          <div class="flex-1">
+            <h3 class="font-black ${isSuccess ? 'text-green-900' : 'text-rose-900'} text-xl mb-1 tracking-tight">
+              ${isSuccess ? 'Clinical Goal Reached' : 'Practice Gap Identified'}
+            </h3>
+            <p class="text-slate-700 font-medium mb-5 leading-relaxed">${step.feedback}</p>
+
+            ${isSuccess ? `
+              <button class="w-full md:w-auto px-8 py-3.5 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all shadow-md hover:-translate-y-0.5"
+                      id="btn-complete">
+                Complete Session
+              </button>
+            ` : `
+              <button class="w-full md:w-auto px-8 py-3.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-black transition-all shadow-md hover:-translate-y-0.5"
+                      id="btn-restart">
+                Retry Consult
+              </button>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+
+    if (isSuccess) {
+      document.getElementById('btn-complete').addEventListener('click', () => completeSession(step.takeaway || ''));
+    } else {
+      document.getElementById('btn-restart').addEventListener('click', () => loadSession(currentSessionIdx));
+    }
+  }
+
+  function startSession() {
+    goToStep('start');
+  }
+
+  function goToStep(stepId) {
+    const data = sessions[currentSessionIdx];
+    const step = data.scenario.steps.find(s => s.id === stepId);
+    currentStep = step;
+
+    addTypingIndicator();
+
+    setTimeout(() => {
+      removeTypingIndicator();
+      addMessage(step.bot, 'bot');
+      if (step.isEnd) showEndState(step);
+      else showOptions(step.options);
+    }, 800);
+  }
+
+  function completeSession(takeaway) {
+    if (!consultedSessions.includes(currentSessionIdx)) {
+      consultedSessions.push(currentSessionIdx);
+    }
+    dom.modalTakeaway.textContent = takeaway || "Applying evidence-based mechanisms improves outcomes.";
+    dom.completionModal.classList.remove('hidden');
+    const nextBtn = document.getElementById('btn-next');
+    if (nextBtn) nextBtn.textContent = 'Go to Knowledge Check';
+
+    setTimeout(() => {
+      dom.modalContent.classList.remove('scale-95', 'opacity-0');
+      dom.modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+
+    renderSessionList();
+  }
+
+  function nextSession() {
+    dom.modalContent.classList.remove('scale-100', 'opacity-100');
+    dom.modalContent.classList.add('scale-95', 'opacity-0');
+
+    setTimeout(() => {
+      dom.completionModal.classList.add('hidden');
+      switchTab('competence');
+    }, 250);
+  }
+
+  function init() {
+    dom.btnMenu.addEventListener('click', () => toggleSidebar(false));
+    dom.btnClose.addEventListener('click', () => toggleSidebar(true));
+    dom.btnExamine.addEventListener('click', (e) => { e.preventDefault(); openClinicalOverlay(); });
+    dom.btnReturn.addEventListener('click', (e) => { e.preventDefault(); closeClinicalOverlay(); });
+    dom.btnNext.addEventListener('click', nextSession);
+    dom.moduleTabs.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+
+    renderSessionList();
+    loadSession(0);
+  }
+
+  window.toggleExamine = toggleExamine;
+  window.openClinicalOverlay = openClinicalOverlay;
+  window.closeClinicalOverlay = closeClinicalOverlay;
+  window.setClinicalView = setClinicalView;
+  document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
