@@ -67,14 +67,16 @@
   }
 
   .standardized-header{
+    background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(18px) saturate(160%);
+    -webkit-backdrop-filter:blur(18px) saturate(160%);
+    border-bottom:1px solid rgba(226,232,240,0.95);
     box-shadow:
-      0 18px 40px rgba(2,6,23,0.24),
-      0 1px 0 rgba(255,255,255,0.08) inset;
+      0 10px 30px rgba(15,23,42,0.06),
+      0 1px 0 rgba(255,255,255,0.75) inset;
   }
   .standardized-title{
-    text-shadow:
-      0 2px 18px rgba(34,211,238,0.10),
-      0 10px 30px rgba(2,6,23,0.28);
+    text-shadow:0 1px 0 rgba(255,255,255,0.70);
   }
 
   #sidebar{
@@ -427,53 +429,41 @@
 <div class="elite-grid"></div>
 
 <!-- Real World CE | -->
-<header class="sticky top-0 z-50 px-4 md:px-8 py-4 md:py-5 relative overflow-hidden border-b border-white/10 standardized-header">
-  <div class="absolute inset-0 bg-[linear-gradient(90deg,#020617_0%,#082f49_18%,#0f3f73_38%,#0c4a6e_58%,#0369a1_82%,#38bdf8_100%)] opacity-[0.98]"></div>
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(56,189,248,0.22),transparent_28%),radial-gradient(circle_at_80%_18%,rgba(96,165,250,0.20),transparent_26%),radial-gradient(circle_at_50%_120%,rgba(14,165,233,0.16),transparent_40%)]"></div>
-  <div class="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,.22)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.22)_1px,transparent_1px)] [background-size:32px_32px]"></div>
-  <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent"></div>
-  <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-300/60 to-transparent"></div>
-
+<header class="sticky top-0 z-50 px-4 md:px-8 py-3 md:py-4 relative border-b border-slate-200 standardized-header">
   <div class="relative max-w-[1600px] mx-auto flex items-center justify-between gap-4">
     <div class="min-w-0 flex items-center">
-      <div class="leading-none min-w-0">
-        <div class="flex items-center gap-3 mb-2">
-<span class="hidden md:block text-[10px] font-black tracking-[0.28em] uppercase text-white/45">
-            
-          </span>
+      <div class="leading-tight min-w-0">
+        <div class="text-base sm:text-lg font-extrabold tracking-tight uppercase whitespace-nowrap text-slate-900 standardized-title">
+          REAL WORLD <span class="text-blue-600">CE</span>
         </div>
 
-        <div class="text-base sm:text-lg font-extrabold tracking-tight uppercase whitespace-nowrap text-white standardized-title">
-          REAL WORLD <span class="text-cyan-300">CE</span>
-        </div>
-
-        <div class="mt-2 text-[11px] md:text-[12px] font-semibold tracking-[0.16em] uppercase text-white/70">
-          Featuring: REAL WORLD DATA
+        <div class="mt-1.5 text-[10px] md:text-[11px] font-bold tracking-[0.18em] uppercase text-slate-500">
+          Featuring: <span class="text-blue-600 font-black">REAL WORLD DATA</span>
         </div>
       </div>
     </div>
 
     <div class="flex items-center gap-3 md:gap-5 shrink-0">
-      <div class="hidden lg:flex items-center gap-3 px-4 py-3 rounded-[1.15rem] border border-white/12 bg-white/10 backdrop-blur-xl shadow-[0_14px_34px_rgba(2,6,23,0.30)]">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-400/20 to-sky-500/20 text-cyan-300 flex items-center justify-center border border-cyan-200/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]">
+      <div class="hidden lg:flex items-center gap-3 px-4 py-3 rounded-[1.15rem] border border-slate-200 bg-white/85 backdrop-blur-xl shadow-[0_10px_24px_rgba(15,23,42,0.06)]">
+        <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shadow-sm">
           <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
         </div>
 
         <div class="min-w-[11rem]">
-          <div class="text-[10px] font-black tracking-[0.22em] uppercase text-white/55">
+          <div class="text-[10px] font-black tracking-[0.22em] uppercase text-slate-500">
             Module Progress
           </div>
 
-          <div class="w-44 h-2.5 bg-white/10 rounded-full mt-2 overflow-hidden ring-1 ring-white/8">
+          <div class="w-44 h-2.5 bg-slate-200 rounded-full mt-2 overflow-hidden ring-1 ring-slate-200">
             <div
-              class="h-full w-0 rounded-full bg-[linear-gradient(90deg,#22d3ee_0%,#38bdf8_35%,#60a5fa_70%,#2563eb_100%)] shadow-[0_0_18px_rgba(56,189,248,0.45)] transition-all duration-500"
+              class="h-full w-0 rounded-full bg-[linear-gradient(90deg,#2563eb_0%,#3b82f6_55%,#60a5fa_100%)] shadow-[0_0_14px_rgba(37,99,235,0.30)] transition-all duration-500"
               id="progress-bar"></div>
           </div>
         </div>
       </div>
 
       <button
-        class="md:hidden w-11 h-11 rounded-2xl bg-white/10 text-white border border-white/15 shadow-[0_10px_25px_rgba(2,6,23,0.25)] backdrop-blur-xl hover:bg-white/15 transition"
+        class="md:hidden w-11 h-11 rounded-2xl bg-white text-blue-700 border border-slate-200 shadow-sm hover:bg-blue-50 transition"
         id="btn-menu"
         type="button">
         <span class="material-symbols-outlined">menu</span>
