@@ -334,6 +334,108 @@
     font-weight:600;
   }
 
+
+  /* Formatting fixes: diagnostic view controls, guided flow, objective cards, and wrapping patient details */
+  .clinical-hud .inline-flex{
+    max-width:min(100%, 30rem);
+    overflow:visible;
+  }
+  .clinical-hud .inline-flex button{
+    min-height:2.55rem;
+    min-width:7.5rem;
+    padding:.7rem 1rem !important;
+    color:#ffffff !important;
+    opacity:1 !important;
+    line-height:1.1;
+    white-space:normal;
+    text-align:center;
+    background:rgba(15,23,42,.62);
+    border:1px solid rgba(255,255,255,.18);
+    text-shadow:0 1px 2px rgba(0,0,0,.35);
+  }
+  .clinical-hud .inline-flex button.view-active,
+  .clinical-hud .inline-flex button:hover{
+    background:#2563eb !important;
+    color:#ffffff !important;
+    border-color:rgba(191,219,254,.60);
+    box-shadow:0 10px 24px rgba(37,99,235,.28);
+  }
+  .sidebar-flow-card{
+    background:rgba(255,255,255,.88);
+    border:1px solid rgba(191,219,254,.72);
+    border-radius:1.1rem;
+    padding:.85rem;
+    box-shadow:0 10px 24px rgba(37,99,235,.07);
+  }
+  .flow-step-btn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:.65rem;
+    padding:.68rem .75rem;
+    border-radius:.9rem;
+    text-align:left;
+    font-size:.78rem;
+    font-weight:800;
+    color:#475569;
+    border:1px solid transparent;
+    transition:all .18s ease;
+  }
+  .flow-step-btn:hover{ background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe; }
+  .flow-step-btn.active{ background:#2563eb; color:#fff; box-shadow:0 10px 22px rgba(37,99,235,.18); }
+  .flow-step-index{
+    width:1.55rem;
+    height:1.55rem;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 auto;
+    background:#e0f2fe;
+    color:#1d4ed8;
+    font-size:.68rem;
+    font-weight:900;
+  }
+  .flow-step-btn.active .flow-step-index{ background:rgba(255,255,255,.20); color:#fff; }
+  .objective-list{ display:grid; gap:.75rem; }
+  .objective-card{
+    display:flex;
+    align-items:flex-start;
+    gap:.85rem;
+    padding:1rem;
+    border-radius:1rem;
+    background:linear-gradient(180deg,#ffffff,#f8fafc);
+    border:1px solid #dbeafe;
+    box-shadow:0 8px 18px rgba(15,23,42,.04);
+  }
+  .objective-number{
+    width:2rem;
+    height:2rem;
+    border-radius:.8rem;
+    background:#2563eb;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 auto;
+    font-weight:900;
+    font-size:.78rem;
+    box-shadow:0 10px 18px rgba(37,99,235,.18);
+  }
+  .flow-callout-card{
+    background:linear-gradient(180deg,#ffffff,#eff6ff);
+    border:1px solid #bfdbfe;
+  }
+  .patient-rx-wrap{
+    white-space:normal !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+    line-height:1.25;
+    word-break:normal;
+    overflow-wrap:anywhere;
+    min-height:2.25rem;
+  }
+
   @media (min-width: 768px){
     .scrollbar-hide::-webkit-scrollbar{ display:block; width:10px; }
     .scrollbar-hide::-webkit-scrollbar-thumb{
@@ -414,6 +516,9 @@
     .session-item-elite span:last-child{ line-height: 1.35; }
     .clinical-stage{ height: clamp(21rem, 56vh, 32rem); border-radius:1.25rem; }
     .clinical-hud, .clinical-footer{ left:.75rem; right:.75rem; }
+    .clinical-hud{ top:.75rem; align-items:flex-start; gap:.55rem; }
+    .clinical-hud .inline-flex{ flex-wrap:wrap; width:min(100%, 20rem); }
+    .clinical-hud .inline-flex button{ min-width:6.2rem; font-size:10px; padding:.65rem .75rem !important; }
     .clinical-footer{ flex-direction:column; align-items:stretch; }
     .clinical-callout{ max-width:100%; }
     .clinical-badge{ align-self:flex-start; }
@@ -489,6 +594,8 @@
         <div class="mt-2 text-lg font-black text-slate-900 leading-tight">Mechanism driven education for durable psoriatic disease control.</div>
         <div class="mt-3 text-xs text-slate-500 font-medium leading-relaxed">Move from practice gaps to confident patient conversations, pathway literacy, and treatment alignment.</div>
       </div>
+
+      <div class="sidebar-flow-card mt-4" id="sidebar-flow-guide"></div>
     </div>
 
     <div class="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar" id="session-list"></div>
@@ -601,7 +708,7 @@
             </div>
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
               <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Previous Rx</div>
-              <div class="font-bold text-slate-800 truncate" id="patient-rx" title="Topicals">Topicals</div>
+              <div class="font-bold text-slate-800 patient-rx-wrap" id="patient-rx" title="Topicals">Topicals</div>
             </div>
           </div>
 
@@ -808,7 +915,7 @@
         },
         complaint: "Everything works for a year, then stops. Prove this is different.",
         duration: "15 Years",
-        rx: "Failed Older Biologics",
+        rx: "Failed older biologics; loss of response after prior injectable therapy",
         mindset: "Needs evidence of long-term durability to commit to another injectable."
       },
       scenario: {
@@ -892,6 +999,7 @@
   const dom = {
     sidebar: document.getElementById('sidebar'),
     sessionList: document.getElementById('session-list'),
+    flowGuide: document.getElementById('sidebar-flow-guide'),
     avatar: document.getElementById('avatar-image'),
     clinicalOverlay: document.getElementById('clinical-overlay'),
     clinicalImg: document.getElementById('clinical-image'),
@@ -1055,6 +1163,30 @@
 
   function setActiveTabUI() {
     dom.moduleTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === activeTab));
+    updateFlowGuide();
+  }
+
+  function updateFlowGuide() {
+    if (!dom.flowGuide) return;
+    const steps = [
+      { tab: 'content', label: 'Pathway Education', icon: 'school' },
+      { tab: 'consult', label: 'Patient Consult', icon: 'forum' },
+      { tab: 'competence', label: 'Knowledge Check', icon: 'quiz' },
+      { tab: 'resources', label: 'Data & Guidelines', icon: 'library_books' }
+    ];
+    dom.flowGuide.innerHTML = `
+      <div class="text-[10px] font-black tracking-[0.22em] uppercase text-blue-600 mb-2 px-1">Guided Flow</div>
+      <div class="space-y-1.5">
+        ${steps.map((step, idx) => `
+          <button type="button" onclick="switchTab('${step.tab}')" class="flow-step-btn ${activeTab === step.tab ? 'active' : ''}">
+            <span class="flow-step-index">${idx + 1}</span>
+            <span class="material-symbols-outlined text-[17px]">${step.icon}</span>
+            <span>${step.label}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="mt-3 text-[11px] text-slate-500 leading-relaxed px-1">Use this sequence for every case, then move to the next left-column scenario.</div>
+    `;
   }
 
   function renderContentTab() {
@@ -1068,13 +1200,19 @@
             <div class="flex-1">
               <h3 class="text-3xl font-black text-slate-900 leading-tight tracking-tight">${content.title}</h3>
               <p class="mt-3 text-slate-600 text-base leading-relaxed">${content.summary}</p>
-              <div class="mt-6 grid gap-4 sm:grid-cols-3">
-                ${content.objectives.map((item, idx) => `
-                  <div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl shadow-sm">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-2">Objective ${idx + 1}</div>
-                    <p class="text-sm text-slate-700 font-medium leading-relaxed">${item}</p>
-                  </div>
-                `).join('')}
+              <div class="mt-6 rounded-2xl border border-blue-100 bg-blue-50/40 p-4 md:p-5">
+                <div class="flex items-center gap-2 mb-4">
+                  <span class="material-symbols-outlined text-blue-600 text-[20px]">checklist</span>
+                  <div class="text-[10px] font-black uppercase tracking-widest text-blue-700">Learning Objectives</div>
+                </div>
+                <div class="objective-list">
+                  ${content.objectives.map((item, idx) => `
+                    <div class="objective-card">
+                      <div class="objective-number">${idx + 1}</div>
+                      <p class="text-sm text-slate-700 font-semibold leading-relaxed">${item}</p>
+                    </div>
+                  `).join('')}
+                </div>
               </div>
             </div>
             <div class="w-full lg:w-[20rem] module-card p-6 bg-gradient-to-br from-white to-blue-50/50 border border-blue-100 shadow-sm">
@@ -1102,15 +1240,23 @@
             </div>
           </div>
 
-          <div class="module-card p-6 bg-slate-50 border border-slate-200">
-            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Recommended Flow</div>
+          <div class="module-card p-6 flow-callout-card">
+            <div class="flex items-start gap-3 mb-5">
+              <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md">
+                <span class="material-symbols-outlined text-[20px]">route</span>
+              </div>
+              <div>
+                <div class="text-[10px] font-black uppercase tracking-widest text-blue-700">How to Navigate This Case</div>
+                <p class="mt-1 text-sm text-slate-600 font-medium leading-relaxed">Follow the blue guided flow in the left column, then move to the next scenario.</p>
+              </div>
+            </div>
             <div class="space-y-3 text-sm text-slate-700 font-medium">
-              <div class="p-4 rounded-xl bg-white shadow-sm border border-blue-200 border-l-4 border-l-blue-500"><span class="font-bold text-blue-900">1. Review the Data</span><br/><span class="text-slate-500 text-xs font-normal">Internalize the clinical gaps.</span></div>
-              <div class="p-4 rounded-xl bg-white shadow-sm border border-slate-200"><span class="font-bold text-slate-900">2. Run Patient Consult</span><br/><span class="text-slate-500 text-xs font-normal">Apply principles in conversation.</span></div>
-              <div class="p-4 rounded-xl bg-white shadow-sm border border-slate-200"><span class="font-bold text-slate-900">3. Knowledge Check</span><br/><span class="text-slate-500 text-xs font-normal">Validate understanding.</span></div>
+              <button type="button" onclick="switchTab('content')" class="w-full text-left p-4 rounded-xl bg-white shadow-sm border border-blue-200 border-l-4 border-l-blue-500"><span class="font-bold text-blue-900">1. Pathway Education</span><br/><span class="text-slate-500 text-xs font-normal">Review the clinical gap and objectives.</span></button>
+              <button type="button" onclick="switchTab('consult')" class="w-full text-left p-4 rounded-xl bg-white shadow-sm border border-slate-200 hover:border-blue-200"><span class="font-bold text-slate-900">2. Patient Consult</span><br/><span class="text-slate-500 text-xs font-normal">Apply the principle in conversation.</span></button>
+              <button type="button" onclick="switchTab('competence')" class="w-full text-left p-4 rounded-xl bg-white shadow-sm border border-slate-200 hover:border-blue-200"><span class="font-bold text-slate-900">3. Knowledge Check</span><br/><span class="text-slate-500 text-xs font-normal">Validate and complete the section.</span></button>
             </div>
             <button class="mt-6 w-full py-4 text-white font-bold rounded-xl rw-btn-primary flex items-center justify-center gap-2 shadow-lg" type="button" onclick="switchTab('consult')">
-              Start Simulation <span class="material-symbols-outlined">arrow_forward</span>
+              Start Patient Consult <span class="material-symbols-outlined">arrow_forward</span>
             </button>
           </div>
         </div>
@@ -1428,6 +1574,7 @@
     dom.ptComplaint.textContent = `"${data.patient.complaint}"`;
     dom.ptDuration.textContent = data.patient.duration;
     dom.ptRx.textContent = data.patient.rx;
+    dom.ptRx.title = data.patient.rx;
     dom.ptMindset.textContent = data.patient.mindset;
 
     closeClinicalOverlay();
